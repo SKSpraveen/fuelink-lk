@@ -3,16 +3,49 @@ const express = require("express");
 const {
   registerUser,
   loginUser,
+  getMe,
 } = require("../controllers/authController");
+
+const { protect } = require("../middleware/authMiddleware");
+
+const authorizeRoles = require("../middleware/roleMiddleware");
 
 const router = express.Router();
 
+// PUBLIC ROUTES
 
-// REGISTER
+    // REGISTER
 router.post("/register", registerUser);
-
-
-// LOGIN
+   // LOGIN
 router.post("/login", loginUser);
+
+// PROTECTED ROUTE
+router.get("/me", protect, getMe);
+
+// ADMIN ONLY ROUTE
+router.get(
+  "/admin",
+  protect,
+  authorizeRoles("ADMIN"),
+  (req, res) => {
+    res.json({
+      message: "Welcome Admin",
+    });
+  }
+);
+
+
+// SHED OWNER ONLY ROUTE
+router.get(
+  "/shed-owner",
+  protect,
+  authorizeRoles("SHED_OWNER"),
+  (req, res) => {
+    res.json({
+      message: "Welcome Shed Owner",
+    });
+  }
+);
+
 
 module.exports = router;
