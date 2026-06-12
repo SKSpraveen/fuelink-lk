@@ -1,98 +1,307 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
+import API from '@/api/api';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'expo-router';
+import { useState } from 'react';
+import {
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+export default function LoginScreen() {
+  const { setUserToken } = useAuth();
+  const router = useRouter();
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async () => {
+    if (!email.trim() || !password.trim()) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+    setLoading(true);
+    try {
+      const response = await API.post('/auth/login', { email: email.trim(), password });
+      await setUserToken(response.data.token);
+    } catch (error: any) {
+      Alert.alert(
+        'Login Failed',
+        error.response?.data?.message || 'Invalid credentials. Please try again.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+    <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={styles.flex}
+        enabled={Platform.OS === 'ios'}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}>
 
-export default function HomeScreen() {
-  return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
+          {/* Header */}
+          <View style={styles.header}>
+            <View style={styles.logoCircle}>
+              <Text style={styles.logoEmoji}>⛽</Text>
+            </View>
+            <Text style={styles.appName}>Fuelink LK</Text>
+            <Text style={styles.tagline}>Your smart fuel companion</Text>
+          </View>
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
+          {/* Card */}
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Welcome Back</Text>
+            <Text style={styles.cardSubtitle}>Sign in to your account</Text>
 
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
+            {/* Email */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Email Address</Text>
+              <View style={styles.inputWrapper}>
+                <Text style={styles.inputIcon}>📧</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="you@example.com"
+                  placeholderTextColor="#6B7280"
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoComplete="email"
+                />
+              </View>
+            </View>
 
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+            {/* Password */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Password</Text>
+              <View style={styles.inputWrapper}>
+                <Text style={styles.inputIcon}>🔒</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter your password"
+                  placeholderTextColor="#6B7280"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry
+                />
+              </View>
+            </View>
+
+            {/* Login Button */}
+            <Pressable
+              style={({ pressed }) => [styles.loginBtn, pressed && styles.loginBtnPressed]}
+              onPress={handleLogin}
+              disabled={loading}>
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.loginBtnText}>Sign In</Text>
+              )}
+            </Pressable>
+
+            {/* Divider */}
+            <View style={styles.divider}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>OR</Text>
+              <View style={styles.dividerLine} />
+            </View>
+
+            {/* Register Link */}
+            <Pressable
+              style={({ pressed }) => [styles.registerBtn, pressed && styles.registerBtnPressed]}
+              onPress={() => router.push('/register')}>
+              <Text style={styles.registerBtnText}>Create New Account</Text>
+            </Pressable>
+          </View>
+
+          <Text style={styles.footer}>© 2025 Fuelink LK. All rights reserved.</Text>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
+  flex: { flex: 1 },
   safeArea: {
     flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
+    backgroundColor: '#0A0E1A',
   },
-  heroSection: {
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 24,
+    paddingTop: 20,
+    paddingBottom: 32,
+    justifyContent: 'center',
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 32,
+  },
+  logoCircle: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    backgroundColor: '#1A2640',
+    borderWidth: 2,
+    borderColor: '#208AEF',
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 16,
+    shadowColor: '#208AEF',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  logoEmoji: {
+    fontSize: 40,
+  },
+  appName: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    letterSpacing: 1,
+    marginBottom: 6,
+  },
+  tagline: {
+    fontSize: 14,
+    color: '#6B7280',
+    letterSpacing: 0.5,
+  },
+  card: {
+    backgroundColor: '#111827',
+    borderRadius: 24,
+    padding: 28,
+    borderWidth: 1,
+    borderColor: '#1F2937',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  cardTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginBottom: 6,
+  },
+  cardSubtitle: {
+    fontSize: 14,
+    color: '#6B7280',
+    marginBottom: 28,
+  },
+  inputGroup: {
+    marginBottom: 18,
+  },
+  label: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#9CA3AF',
+    marginBottom: 8,
+    letterSpacing: 0.3,
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1F2937',
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: '#374151',
+    paddingHorizontal: 14,
+    paddingVertical: 2,
+  },
+  inputFocused: {
+    borderColor: '#208AEF',
+    shadowColor: '#208AEF',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+  inputIcon: {
+    fontSize: 16,
+    marginRight: 10,
+  },
+  input: {
     flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
+    color: '#F9FAFB',
+    fontSize: 15,
+    paddingVertical: 14,
   },
-  title: {
+  loginBtn: {
+    backgroundColor: '#208AEF',
+    borderRadius: 14,
+    paddingVertical: 16,
+    alignItems: 'center',
+    marginTop: 8,
+    shadowColor: '#208AEF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  loginBtnPressed: {
+    opacity: 0.85,
+    transform: [{ scale: 0.98 }],
+  },
+  loginBtnText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+  },
+  divider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 20,
+    gap: 12,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#374151',
+  },
+  dividerText: {
+    color: '#6B7280',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  registerBtn: {
+    borderRadius: 14,
+    paddingVertical: 15,
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#374151',
+    backgroundColor: 'transparent',
+  },
+  registerBtnPressed: {
+    backgroundColor: '#1F2937',
+  },
+  registerBtnText: {
+    color: '#9CA3AF',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  footer: {
     textAlign: 'center',
-  },
-  code: {
-    textTransform: 'uppercase',
-  },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+    color: '#374151',
+    fontSize: 12,
+    marginTop: 24,
   },
 });

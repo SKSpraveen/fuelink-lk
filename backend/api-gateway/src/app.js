@@ -25,22 +25,8 @@ app.use(morgan("dev"));
 app.use(apiLimiter);
 
 
-// JSON PARSER
-app.use(express.json());
-
-
-// HEALTH CHECK
-app.get("/", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "Fuelink API Gateway Running",
-  });
-});
-
-
 // API VERSIONING
 const API_VERSION = "/api/v1";
-
 
 // AUTH SERVICE
 app.use(
@@ -51,7 +37,6 @@ app.use(
   })
 );
 
-
 // SHED SERVICE
 app.use(
   `${API_VERSION}/sheds`,
@@ -60,6 +45,17 @@ app.use(
     changeOrigin: true,
   })
 );
+
+// HEALTH CHECK
+app.get("/", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Fuelink API Gateway Running",
+  });
+});
+
+// JSON PARSER (Must be after proxies so body stream isn't consumed)
+app.use(express.json());
 
 
 // 404 HANDLER
