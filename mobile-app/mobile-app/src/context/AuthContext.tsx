@@ -3,15 +3,17 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 
 type AuthContextType = {
   userToken: string | null;
+  userRole: string | null;
   isLoading: boolean;
-  setUserToken: (token: string | null) => Promise<void>;
+  setUserAuth: (token: string | null, role: string | null) => Promise<void>;
   logout: () => Promise<void>;
 };
 
 export const AuthContext = createContext<AuthContextType>({
   userToken: null,
+  userRole: null,
   isLoading: true,
-  setUserToken: async () => {},
+  setUserAuth: async () => {},
   logout: async () => {},
 });
 
@@ -19,13 +21,16 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [userToken, setToken] = useState<string | null>(null);
+  const [userRole, setRole] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadToken = async () => {
       try {
         const token = await AsyncStorage.getItem('userToken');
+        const role = await AsyncStorage.getItem('userRole');
         if (token) setToken(token);
+        if (role) setRole(role);
       } catch (e) {
         console.error('Failed to load token', e);
       } finally {
@@ -35,25 +40,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     loadToken();
   }, []);
 
-  const setUserToken = async (token: string | null) => {
+  const setUserAuth = async (token: string | null, role: string | null) => {
     try {
-      if (token) {
+      if (token && role) {
         await AsyncStorage.setItem('userToken', token);
+        await AsyncStorage.setItem('userRole', role);
       } else {
         await AsyncStorage.removeItem('userToken');
+        await AsyncStorage.removeItem('userRole');
       }
       setToken(token);
+      setRole(role);
     } catch (e) {
       console.error('Failed to save token', e);
     }
   };
 
   const logout = async () => {
-    await setUserToken(null);
+    await setUserAuth(null, null);
   };
 
   return (
-    <AuthContext.Provider value={{ userToken, isLoading, setUserToken, logout }}>
+    <AuthContext.Provider value={{ userToken, userRole, isLoading, setUserAuth, logout }}>
       {children}
     </AuthContext.Provider>
   );

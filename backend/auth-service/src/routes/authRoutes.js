@@ -4,6 +4,7 @@ const {
   registerUser,
   loginUser,
   getMe,
+  verifyOtp,
 } = require("../controllers/authController");
 
 const { protect } = require("../middleware/authMiddleware");
@@ -18,6 +19,8 @@ const router = express.Router();
 router.post("/register", registerUser);
    // LOGIN
 router.post("/login", loginUser);
+   // VERIFY OTP
+router.post("/verify-otp", verifyOtp);
 
 // PROTECTED ROUTE
 router.get("/me", protect, getMe);

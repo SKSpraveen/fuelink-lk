@@ -19,10 +19,17 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="sheds"
+        name="map"
         options={{
-          title: 'Fuel Sheds',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20, color }}>⛽</Text>,
+          title: 'Map',
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20, color }}>🗺️</Text>,
+        }}
+      />
+      <Tabs.Screen
+        name="chat"
+        options={{
+          title: 'Chat',
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20, color }}>💬</Text>,
         }}
       />
       <Tabs.Screen

@@ -6,6 +6,7 @@ const morgan = require("morgan");
 const { createProxyMiddleware } = require("http-proxy-middleware");
 
 const apiLimiter = require("./middleware/rateLimiter");
+const { protect } = require("./middleware/authMiddleware");
 
 const errorHandler = require("./middleware/errorMiddleware");
 
@@ -32,17 +33,63 @@ const API_VERSION = "/api/v1";
 app.use(
   `${API_VERSION}/auth`,
   createProxyMiddleware({
-    target: process.env.AUTH_SERVICE_URL,
+    target: process.env.AUTH_SERVICE_URL || "http://127.0.0.1:5001",
     changeOrigin: true,
+    pathRewrite: {
+      [`^${API_VERSION}/auth`]: "",
+    },
   })
 );
 
 // SHED SERVICE
 app.use(
   `${API_VERSION}/sheds`,
+  protect,
   createProxyMiddleware({
-    target: process.env.SHED_SERVICE_URL,
+    target: process.env.SHED_SERVICE_URL || "http://127.0.0.1:5002",
     changeOrigin: true,
+    pathRewrite: {
+      [`^${API_VERSION}/sheds`]: "",
+    },
+  })
+);
+
+// NOTIFICATION SERVICE
+app.use(
+  `${API_VERSION}/notifications`,
+  protect,
+  createProxyMiddleware({
+    target: process.env.NOTIFICATION_SERVICE_URL || "http://127.0.0.1:5003",
+    changeOrigin: true,
+    pathRewrite: {
+      [`^${API_VERSION}/notifications`]: "",
+    },
+  })
+);
+
+// CHAT SERVICE
+app.use(
+  `${API_VERSION}/chats`,
+  protect,
+  createProxyMiddleware({
+    target: process.env.CHAT_SERVICE_URL || "http://127.0.0.1:5004",
+    changeOrigin: true,
+    pathRewrite: {
+      [`^${API_VERSION}/chats`]: "",
+    },
+  })
+);
+
+// REPORT SERVICE
+app.use(
+  `${API_VERSION}/reports`,
+  protect,
+  createProxyMiddleware({
+    target: process.env.REPORT_SERVICE_URL || "http://127.0.0.1:5005",
+    changeOrigin: true,
+    pathRewrite: {
+      [`^${API_VERSION}/reports`]: "",
+    },
   })
 );
 

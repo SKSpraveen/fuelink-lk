@@ -17,7 +17,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function LoginScreen() {
-  const { setUserToken } = useAuth();
+  const { setUserAuth } = useAuth();
   const router = useRouter();
 
   const [email, setEmail] = useState('');
@@ -32,7 +32,7 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       const response = await API.post('/auth/login', { email: email.trim(), password });
-      await setUserToken(response.data.token);
+      await setUserAuth(response.data.token, response.data.user.role);
     } catch (error: any) {
       Alert.alert(
         'Login Failed',

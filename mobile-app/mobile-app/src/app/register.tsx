@@ -14,9 +14,11 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAuth } from '@/context/AuthContext';
 
 export default function RegisterScreen() {
   const router = useRouter();
+  const { setUserAuth } = useAuth();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -36,13 +38,14 @@ export default function RegisterScreen() {
     }
     setLoading(true);
     try {
-      await API.post('/auth/register', {
+      const response = await API.post('/auth/register', {
         name: name.trim(),
         email: email.trim(),
         mobile: mobile.trim(),
         password,
         role: 'USER',
       });
+      await setUserAuth(response.data.token, response.data.user.role);
       Alert.alert('Success', 'Account created successfully! Please sign in.', [
         { text: 'OK', onPress: () => router.replace('/') },
       ]);

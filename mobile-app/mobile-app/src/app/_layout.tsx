@@ -5,19 +5,25 @@ import { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 
 function RootLayoutNav() {
-  const { userToken, isLoading } = useAuth();
+  const { userToken, userRole, isLoading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
 
   useEffect(() => {
     if (isLoading) return;
-    const inAuthGroup = segments[0] === '(tabs)';
-    if (userToken && !inAuthGroup) {
-      router.replace('/(tabs)/home');
-    } else if (!userToken && inAuthGroup) {
+
+    const isPublicRoute = segments.length === 0 || segments[0] === 'register' || segments[0] === 'index';
+
+    if (userToken && isPublicRoute) {
+      if (userRole === 'SHED_OWNER') {
+        router.replace('/(owner-tabs)/dashboard');
+      } else {
+        router.replace('/(tabs)/home');
+      }
+    } else if (!userToken && !isPublicRoute) {
       router.replace('/');
     }
-  }, [userToken, isLoading, segments]);
+  }, [userToken, userRole, isLoading, segments]);
 
   return <Slot />;
 }

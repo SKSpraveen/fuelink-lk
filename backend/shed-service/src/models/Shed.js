@@ -72,4 +72,12 @@ const shedSchema = new mongoose.Schema(
 // IMPORTANT
 shedSchema.index({ location: "2dsphere" });
 
+shedSchema.set('toJSON', {
+  transform: (document, returnedObject) => {
+    returnedObject.shedId = returnedObject._id;
+    delete returnedObject._id;
+    delete returnedObject.__v;
+  }
+});
+
 module.exports = mongoose.model("Shed", shedSchema);

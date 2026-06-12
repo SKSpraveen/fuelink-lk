@@ -60,11 +60,36 @@ const getNearbySheds = async (req, res) => {
   }
 };
 
+// GET MY SHEDS
+const getMySheds = async (req, res) => {
+  try {
+    const sheds = await Shed.find({ ownerId: req.user.id });
+    res.status(200).json(sheds);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+
+// GET SHED BY ID
+const getShedById = async (req, res) => {
+  try {
+    const shed = await Shed.findById(req.params.id);
+    if (!shed) {
+      return res.status(404).json({ message: "Shed not found" });
+    }
+    res.status(200).json(shed);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 // UPDATE STOCK
 const updateFuelStock = async (req, res) => {
   try {
-    const shed = await Shed.findById(req.params.id);
+    const shed = await Shed.findById(req.body.shedId);
 
     if (!shed) {
       return res.status(404).json({
@@ -98,7 +123,7 @@ const updateFuelStock = async (req, res) => {
 // UPDATE QUEUE
 const updateQueueStatus = async (req, res) => {
   try {
-    const shed = await Shed.findById(req.params.id);
+    const shed = await Shed.findById(req.body.shedId);
 
     if (!shed) {
       return res.status(404).json({
@@ -130,6 +155,8 @@ const updateQueueStatus = async (req, res) => {
 module.exports = {
   createShed,
   getNearbySheds,
+  getMySheds,
+  getShedById,
   updateFuelStock,
   updateQueueStatus,
 };
