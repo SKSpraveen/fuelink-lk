@@ -7,6 +7,8 @@ const {
   getShedById,
   updateFuelStock,
   updateQueueStatus,
+  joinQueue,
+  leaveQueue,
 } = require("../controllers/shedController");
 
 const { protect } = require("../middleware/authMiddleware");
@@ -18,6 +20,10 @@ const router = express.Router();
 
 // PUBLIC
 router.get("/nearby-sheds", getNearbySheds);
+
+// AUTHENTICATED USERS
+router.post("/join-queue", protect, joinQueue);
+router.post("/leave-queue", protect, leaveQueue);
 
 
 // SHED OWNER ONLY

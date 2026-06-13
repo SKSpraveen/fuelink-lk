@@ -62,6 +62,16 @@ const shedSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+
+    queueCount: {
+      type: Number,
+      default: 0,
+    },
+
+    waitTime: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,

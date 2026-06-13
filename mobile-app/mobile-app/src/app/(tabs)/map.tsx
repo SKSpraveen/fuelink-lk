@@ -2,14 +2,18 @@ import API from '@/api/api';
 import { useRouter } from 'expo-router';
 import * as Location from 'expo-location';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View, Pressable } from 'react-native';
 import MapView, { Marker, Callout } from '@/components/Map';
+import { useSmartQueue } from '@/hooks/useSmartQueue';
+import SmartQueuePopup from '@/components/SmartQueuePopup';
 
 export default function MapScreen() {
   const router = useRouter();
   const [sheds, setSheds] = useState<any[]>([]);
   const [location, setLocation] = useState<any>(null);
   const [errorMsg, setErrorMsg] = useState('');
+
+  const { isPossibleQueue, suggestedShed, inQueueSession, joinQueue, declineQueue } = useSmartQueue(sheds);
 
   useEffect(() => {
     (async () => {
@@ -71,7 +75,7 @@ export default function MapScreen() {
             }}
             pinColor={getMarkerColor(shed.queueStatus)}
             title={shed.name}
-            description="Tap here to view details & chat"
+            description={inQueueSession?.shedId === (shed._id || shed.shedId) ? "You are in this queue" : `Wait: ~${shed.waitTime || 0} mins | Tap for details`}
             onCalloutPress={() => router.push(`/shed/${shed._id || shed.shedId}`)}
           />
         ))}
@@ -82,6 +86,13 @@ export default function MapScreen() {
         <View style={styles.legendRow}><View style={[styles.dot, { backgroundColor: '#F59E0B' }]} /><Text style={styles.legendText}>Medium</Text></View>
         <View style={styles.legendRow}><View style={[styles.dot, { backgroundColor: '#EF4444' }]} /><Text style={styles.legendText}>High</Text></View>
       </View>
+
+      <SmartQueuePopup 
+        visible={isPossibleQueue && !inQueueSession} 
+        shedName={suggestedShed?.name || "nearby shed"} 
+        onConfirm={(lat, lon) => joinQueue(suggestedShed?.shedId || suggestedShed?._id, lat, lon)} 
+        onDecline={declineQueue} 
+      />
     </View>
   );
 }
@@ -113,4 +124,33 @@ const styles = StyleSheet.create({
   legendRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 4 },
   dot: { width: 12, height: 12, borderRadius: 6, marginRight: 8 },
   legendText: { color: '#9CA3AF', fontSize: 13 },
+  activeQueueBanner: {
+    position: 'absolute',
+    top: 60,
+    left: 20,
+    right: 20,
+    backgroundColor: '#064E3B',
+    borderRadius: 16,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: '#10B981',
+    shadowColor: '#10B981',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  activeQueueInfo: { flex: 1 },
+  activeQueueTitle: { color: '#FFFFFF', fontWeight: 'bold', fontSize: 16, marginBottom: 2 },
+  activeQueueSubtitle: { color: '#A7F3D0', fontSize: 12 },
+  leaveButton: {
+    backgroundColor: '#EF4444',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  leaveButtonText: { color: '#FFFFFF', fontWeight: 'bold', fontSize: 14 },
 });
