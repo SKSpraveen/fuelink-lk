@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function OwnerProfileScreen() {
   const { userRole, logout } = useAuth();
   const router = useRouter();
+  const { userToken, user } = useAuth();
 
   const handleLogout = async () => {
     await logout();
@@ -23,7 +24,7 @@ export default function OwnerProfileScreen() {
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>👤</Text>
           </View>
-          <Text style={styles.roleText}>Role: {userRole || 'Owner'}</Text>
+          <Text style={styles.roleText}> {user?.name || 'Owner'}</Text>
           <Text style={styles.subText}>Manage your shed and account settings.</Text>
         </View>
 

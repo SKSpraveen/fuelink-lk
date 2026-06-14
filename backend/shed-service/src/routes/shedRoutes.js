@@ -9,6 +9,7 @@ const {
   updateQueueStatus,
   joinQueue,
   leaveQueue,
+  validateSession,
 } = require("../controllers/shedController");
 
 const { protect } = require("../middleware/authMiddleware");
@@ -24,6 +25,7 @@ router.get("/nearby-sheds", getNearbySheds);
 // AUTHENTICATED USERS
 router.post("/join-queue", protect, joinQueue);
 router.post("/leave-queue", protect, leaveQueue);
+router.get("/validate-session", protect, validateSession);
 
 
 // SHED OWNER ONLY

@@ -72,6 +72,25 @@ const shedSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+
+    // CRITICAL: Track manual overrides vs auto-calculated status
+    manualOverride: {
+      type: Boolean,
+      default: false,
+    },
+
+    // Store owner's manual status separately
+    manualQueueStatus: {
+      type: String,
+      enum: [null, "LOW", "MEDIUM", "HIGH"],
+      default: null,
+    },
+
+    // Track when metrics were last auto-recalculated
+    lastRecalculatedAt: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,

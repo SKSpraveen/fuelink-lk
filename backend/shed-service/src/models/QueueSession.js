@@ -36,6 +36,10 @@ const queueSessionSchema = new mongoose.Schema(
       default: true,
       index: true,
     },
+    idempotencyKey: {
+      type: String,
+      default: null,
+    },
   },
   {
     timestamps: true,

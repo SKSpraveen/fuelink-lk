@@ -32,7 +32,7 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       const response = await API.post('/auth/login', { email: email.trim(), password });
-      await setUserAuth(response.data.token, response.data.user.role);
+      await setUserAuth(response.data.token, response.data.user.role,  response.data.user);
     } catch (error: any) {
       Alert.alert(
         'Login Failed',

@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function ProfileScreen() {
   const { userRole, logout } = useAuth();
   const router = useRouter();
+  const { userToken, user } = useAuth();
 
   const handleLogout = async () => {
     await logout();
@@ -23,7 +24,7 @@ export default function ProfileScreen() {
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>👤</Text>
           </View>
-          <Text style={styles.roleText}>Role: {userRole || 'User'}</Text>
+          <Text style={styles.roleText}> {user?.name || 'User'}</Text>
           <Text style={styles.subText}>Manage your account details and preferences.</Text>
         </View>
 
