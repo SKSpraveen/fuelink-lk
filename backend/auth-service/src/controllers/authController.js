@@ -106,8 +106,23 @@ const getMe = async (req, res) => {
   }
 };
 
+// VERIFY OTP
+const verifyOtp = async (req, res) => {
+  try {
+    res.status(200).json({
+      success: true,
+      message: "OTP verified successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
   getMe,
+  verifyOtp,
 };

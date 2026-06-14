@@ -16,6 +16,6 @@ app.get("/", (req, res) => {
   res.send("Shed Service Running...");
 });
 
-app.use("/api/sheds", shedRoutes);
+app.use("/", shedRoutes);
 
 module.exports = app;

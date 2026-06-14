@@ -29,10 +29,27 @@ const userSchema = new mongoose.Schema(
       enum: ["USER", "SHED_OWNER", "ADMIN"],
       default: "USER",
     },
+    location: {
+      type: {
+        type: String,
+        enum: ["Point"],
+      },
+      coordinates: {
+        type: [Number],
+      },
+    },
   },
   {
     timestamps: true,
   }
 );
+
+userSchema.set('toJSON', {
+  transform: (document, returnedObject) => {
+    returnedObject.userId = returnedObject._id;
+    delete returnedObject._id;
+    delete returnedObject.__v;
+  }
+});
 
 module.exports = mongoose.model("User", userSchema);

@@ -62,6 +62,35 @@ const shedSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+
+    queueCount: {
+      type: Number,
+      default: 0,
+    },
+
+    waitTime: {
+      type: Number,
+      default: 0,
+    },
+
+    // CRITICAL: Track manual overrides vs auto-calculated status
+    manualOverride: {
+      type: Boolean,
+      default: false,
+    },
+
+    // Store owner's manual status separately
+    manualQueueStatus: {
+      type: String,
+      enum: [null, "LOW", "MEDIUM", "HIGH"],
+      default: null,
+    },
+
+    // Track when metrics were last auto-recalculated
+    lastRecalculatedAt: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,
@@ -71,5 +100,13 @@ const shedSchema = new mongoose.Schema(
 
 // IMPORTANT
 shedSchema.index({ location: "2dsphere" });
+
+shedSchema.set('toJSON', {
+  transform: (document, returnedObject) => {
+    returnedObject.shedId = returnedObject._id;
+    delete returnedObject._id;
+    delete returnedObject.__v;
+  }
+});
 
 module.exports = mongoose.model("Shed", shedSchema);

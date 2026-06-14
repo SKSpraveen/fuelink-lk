@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "Fuelink LK",
+    "slug": "fuelink-lk",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "fuelink-lk",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0A0E1A"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-asset"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
